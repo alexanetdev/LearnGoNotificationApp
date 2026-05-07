@@ -53,6 +53,7 @@ LearnGoNotificationApp/
 | Package organization | models / senders / enums separation |
 | Typed enums | OutreachType replacing raw strings |
 | Goroutines + WaitGroups | Coming next — concurrent notification processing |
+| Generics + higher-order functions | FilterMap utility for filtering notification results |
 
 ## What's coming
 
