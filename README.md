@@ -19,23 +19,26 @@ gracefully.
 
 ```
 LearnGoNotificationApp/
-    main.go              — orchestration and main loop
+    main.go              — orchestration, main loop, result categorization
     go.mod
     enums/
-        outreachType.go  — typed OutreachType enum (Reminder, Blast)
+        outreachStatus.go  — typed OutreachStatus enum (NotSent, Failed, Success)
+        outreachType.go    — typed OutreachType enum (Reminder, Blast)
     models/
-        person.go        — Person struct with status tracking
         notificationSender.go — NotificationSender interface
+        person.go          — Person struct with status tracking
     senders/
-        smsSender.go     — SMS implementation
-        emailSender.go   — Email implementation
+        emailSender.go     — Email implementation
+        smsSender.go       — SMS implementation
+    utils/
+        maputils.go        — generic FilterMap utility for map filtering
 ```
 
 ## Concepts applied so far
 
 - Package organization — models, senders, enums as separate packages
 - Interface-driven architecture — pluggable sender implementations
-- Typed enums — OutreachType prevents invalid states at compile time
+- Typed enums — OutreachType and OutreachStatus prevent invalid states at compile time
 - Error handling — multiple return values, no try/catch
 - Structs and methods — Person with constructor and Stringer
 - Exported vs unexported identifiers — Go's access control model
