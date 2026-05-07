@@ -1,0 +1,15 @@
+package senders
+
+import (
+	"fmt"
+)
+
+type EmailSender struct{}
+
+func (s EmailSender) Send(name string) (bool, error) {
+	if name == "Alex" {
+		return false, fmt.Errorf("Name cannot be Alex")
+	}
+
+	return true, nil
+}
