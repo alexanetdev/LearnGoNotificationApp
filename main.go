@@ -5,11 +5,14 @@ import (
 	"LearnGoNotificationApp/models"
 	"LearnGoNotificationApp/senders"
 	"LearnGoNotificationApp/utils"
+	"LearnGoNotificationApp/workers"
 	"fmt"
+	"sync"
 )
 
 func main() {
 	fmt.Printf("TestApp is starting...\n")
+	fmt.Println()
 
 	notifications := make(map[string]*models.Person)
 	notifications["Alex"] = models.NewPerson("Alex", enums.Reminder, enums.NotSent, senders.SmsSender{})
@@ -18,24 +21,28 @@ func main() {
 	notifications["Albert"] = models.NewPerson("Albert", enums.Reminder, enums.NotSent, senders.EmailSender{})
 	notifications["Kevin"] = models.NewPerson("Kevin", enums.Reminder, enums.NotSent, senders.SmsSender{})
 
-	for key, value := range notifications {
-		fmt.Printf("Try to send notification of type %s to %s\n", value.OutreachType, key)
-		if value.OutreachType == enums.Reminder && value.Status != enums.Success {
-			success, err := value.Sender.Send(key)
+	notificationQueue := make(chan *models.Person)
 
-			if err != nil {
-				fmt.Printf("\nCould not send reminder to %s: %s \n\n", key, err)
-				notifications[key].Status = enums.Failed
-			} else if success {
-				fmt.Printf("Sent reminder to %s\n", key)
-				notifications[key].Status = enums.Success
-			}
-		} else if value.OutreachType == enums.Blast {
-			fmt.Printf("Outreach type of blast is not implemented for %s\n", key)
-		} else {
-			fmt.Printf("Not trying previously failed outreach")
-		}
+	numWorkers := 3
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			workers.NotificationWorker(notificationQueue)
+		}()
 	}
+
+	// fill the channel
+	for key, value := range notifications {
+		fmt.Printf("Queueing notification for %s\n", key)
+		notificationQueue <- value
+	}
+
+	close(notificationQueue)
+	wg.Wait()
 
 	failed := utils.FilterMap(notifications, func(p *models.Person) bool {
 		return p.Status == enums.Failed
@@ -49,12 +56,9 @@ func main() {
 		return p.Status == enums.NotSent
 	})
 
-	fmt.Printf("Failed Outreach:\n")
-	fmt.Printf("Count: %d | Map: %v \n\n", len(failed), failed)
+	fmt.Println()
 
-	fmt.Printf("Successful Outreach:\n")
-	fmt.Printf("Count: %d | Map: %v \n\n", len(successful), successful)
-
-	fmt.Printf("Remaining Outreach:\n")
-	fmt.Printf("Count: %d | Map: %v \n\n", len(remaining), remaining)
+	utils.PrintStatusReport("Failed Outreach", failed)
+	utils.PrintStatusReport("Successful Outreach", successful)
+	utils.PrintStatusReport("Remaining Outreach", remaining)
 }

@@ -32,6 +32,8 @@ LearnGoNotificationApp/
         smsSender.go       — SMS implementation
     utils/
         maputils.go        — generic FilterMap utility for map filtering
+    workers/
+        notificationWorker.go — worker pool, processes notifications from channel
 ```
 
 ## Concepts applied so far
@@ -44,6 +46,7 @@ LearnGoNotificationApp/
 - Exported vs unexported identifiers — Go's access control model
 - Maps, slices, for range loops — core data structures in practice
 - Pointers — why the map stores *Person not Person
+- Goroutines + channels + WaitGroups — worker pool pattern for concurrent processing
 
 ## Learning log
 
@@ -57,14 +60,14 @@ LearnGoNotificationApp/
 | Typed enums | OutreachType replacing raw strings |
 | Goroutines + WaitGroups | Coming next — concurrent notification processing |
 | Generics + higher-order functions | FilterMap utility for filtering notification results |
+| Goroutines + channels + WaitGroups | Worker pool for concurrent notification processing |
 
 ## What's coming
 
-- Concurrent processing with goroutines and WaitGroups
+- Tests — table-driven tests for FilterMap, processNotification, and worker behavior
 - HTTP integration for real SMS/email providers
 - Config file for recipient data instead of hardcoded values
 - Additional outreach channels (push notifications)
-- Tests
 
 ## Why this project
 
